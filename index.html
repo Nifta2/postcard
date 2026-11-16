@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тебе подарок 🎁</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 30%, #3a2c4f, #1f1631 60%, #110c1a);
+    font-family: 'Courier New', monospace;
+    color: #e2d5eb;
+    overflow: hidden;
+  }
+
+  .hint {
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #a994b8;
+    margin-bottom: 20px;
+    animation: blink 1.4s steps(2) infinite;
+    transition: opacity 0.5s ease;
+  }
+  @keyframes blink { 50% { opacity: .3; } }
+
+  .stage {
+    position: relative;
+    width: 384px;
+    height: 384px;
+    cursor: pointer;
+  }
+
+  .box-body, .box-lid, .cat {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: contain;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+
+  .cat {
+    background-image: url('cat.png');
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.3s, opacity 0.3s 0.3s;
+  }
+  .stage.open .cat {
+    opacity: 1;
+    transform: translateY(-30px);
+  }
+
+  .box-body {
+    background-image: url('box_body.png');
+    z-index: 2;
+  }
+
+  .box-lid {
+    background-image: url('box_lid.png');
+    z-index: 4;
+    transform-origin: center 80%;
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s;
+  }
+  .stage.open .box-lid {
+    transform: translateY(-200px) rotate(-15deg);
+    opacity: 0;
+  }
+
+  .heart {
+    position: absolute;
+    width: 192px;
+    height: 192px;
+    background-image: url('heart.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateY(-200px) scale(1.2); opacity: 0; }
+  }
+
+  .message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+    pointer-events: none;
+    width: min(95vw, 650px);
+    padding: 25px 50px;
+    background: rgba(30, 20, 45, 0.85);
+    border: 3px solid #8b6a9e;
+    box-shadow: 0 0 0 3px #1f1631, 0 10px 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    z-index: 20;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .message.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+
+  .message h1 {
+    font-size: clamp(18px, 4vw, 24px);
+    color: #e5c1f0;
+    text-shadow: 1px 1px 0 #110c1a;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+  }
+
+  .message p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #d8c6e0;
+    margin-bottom: 12px;
+  }
+
+  .message .sign {
+    margin-top: 15px;
+    text-align: right;
+    color: #9a80ab;
+    font-style: italic;
+    font-size: 15px;
+  }
+
+  /* =========================================
+     АДАПТАЦИЯ ПОД ТЕЛЕФОНЫ (ЭКРАНЫ ДО 450px)
+     ========================================= */
+  @media (max-width: 450px) {
+    .stage {
+      width: 90vw;
+      height: 90vw;
+      max-width: 384px;
+      max-height: 384px;
+    }
+    .heart {
+      /* Уменьшаем сердечки на телефоне, чтобы не перекрывали весь экран */
+      width: 120px;
+      height: 120px;
+    }
+    .message {
+      width: 92vw;
+      padding: 20px 15px;
+      bottom: 10px;
+    }
+    .message h1 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .message p {
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .message .sign {
+      font-size: 13px;
+      margin-top: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="hint" id="hint">Нажми на подарок</div>
+
+  <div class="stage" id="stage">
+    <div class="cat"></div>
+    <div class="box-body"></div>
+    <div class="box-lid"></div>
+  </div>
+
+  <div class="message" id="msg">
+    <h1>Солнышко, с днём рождения!</h1>
+    <p>В этот чудесный день желаю тебе счастья и здоровья,<br>
+       побольше хорошего настроения, чуточку удачи,<br>
+       чтобы все твои мечты сбывались и всё у тебя получалось.</p>
+    <p>Ты самая чудесная, красивая и очаровательная девушка,<br>
+        и я очень дорожу тобой и счастлив, что ты у меня есть!</p>
+    <div class="sign">— с любовью, Рома ❤️</div>
+  </div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const msg   = document.getElementById('msg');
+  const hint  = document.getElementById('hint');
+  let opened  = false;
+
+  function spawnHeart() {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+
+    const randomLeft = Math.floor(Math.random() * 160) + 20;
+    heart.style.left = randomLeft + 'px';
+    heart.style.top = '-50px';
+
+    heart.style.animation = 'floatUp 2.5s ease-out forwards';
+    stage.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 2500);
+  }
+
+  stage.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+
+    hint.style.animation = 'none';
+    hint.style.opacity = 0;
+    stage.style.cursor = 'default';
+    stage.classList.add('open');
+
+    setInterval(spawnHeart, 300);
+
+    setTimeout(() => {
+      msg.classList.add('show');
+    }, 2000);
+  });
+</script>
+</body>
+</html>
